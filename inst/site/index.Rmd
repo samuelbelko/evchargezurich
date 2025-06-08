@@ -1,0 +1,106 @@
+---
+title: "E-Ladestationen der kantonalen Verwaltung Zürich"
+output:
+  html_document:
+    self_contained: true
+---
+
+In diesem Dokument visualisieren wir öffentlich zugängliche Daten, die Ladevorgänge an E-Ladestationen der kantonalen Verwaltung Zürich zeigen. Weitere Informationen zu den Daten finden sich im Abschnitt [Daten](#daten) unten.
+
+```{r, echo=FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidygeocoder)
+library(leaflet)
+library(kableExtra)
+library(tidyr)
+
+df <- readr::read_csv("https://www.web.statistik.zh.ch/ogd/daten/ressourcen/KTZH_00002282_00004563.csv", show_col_types = FALSE)
+```
+
+### Wo sind die Ladestationen und wie oft wurden sie benutzt?
+
+Klicke auf einen Marker, um die Anzahl der Ladungen zwichen dem 01.10.2021 und dem 31.03.2025 an diesem Ort zu sehen.
+Drei Standorte mit fehlerhaften Adressangaben werden nicht angezeigt.
+
+```{r, echo=FALSE,message=FALSE}
+df_anzahl_ort <- df %>% group_by(stadt, plz, strasse, haus_nr) %>% summarise(anzahl_ladevorgänge = n(), .groups = "drop") %>% arrange(desc(anzahl_ladevorgänge))
+df_coords <- df_anzahl_ort %>%
+  mutate(
+    kanton = "Zürich",
+    land = "Switzerland"
+  ) %>%
+  geocode(street = strasse, city=stadt, postalcode=plz, state=kanton, country=land, method = "osm")
+
+df_coords_clean <- df_coords[!is.na(df_coords$lat) & !is.na(df_coords$long), ]
+
+leaflet(df_coords_clean, width = "100%", height = "700px") %>%
+  addTiles() %>%
+  addCircleMarkers(
+    ~long, ~lat,
+    radius = ~ (sqrt(anzahl_ladevorgänge) * 0.5),  # scale marker size
+    stroke = FALSE,
+    fillOpacity = 0.7,
+    popup = ~as.character(anzahl_ladevorgänge),
+  )
+```
+
+
+### Was ist der Trend im Ladeverhalten über die letzten Jahre?
+
+Bitte beachten Sie, dass die Daten im Zeitraum von 01.10.2021 bis zum 31.03.2025
+erhoben wurden. Daher skalieren wir die Anzahl der Ladevorgänge sowie den gesamten Energieverbrauch für die Jahre 2021 und 2025 mit dem Faktor 4, um eine Vergleichbarkeit herzustellen.
+Die folgenden Diagramme zeigen den geschätzten Trend im Ladeverhalten über diesen Zeitraum.
+
+```{r, echo=FALSE}
+df_pro_jahr <- df %>% 
+  mutate(aktiver_energieverbrauch = aktiver_energieverbrauch * 10^-3) %>% # von kWh auf MWh
+group_by(jahr) %>%  summarise(aktiver_energieverbrauch_pro_jahr = sum(aktiver_energieverbrauch, na.rm = TRUE), Anzahl_Ladevorgänge = n())  %>% arrange(desc(jahr))
+# hochskaliere 2012 und 2025
+df_pro_jahr_hochskaliert  <- df_pro_jahr
+df_pro_jahr_hochskaliert$aktiver_energieverbrauch_pro_jahr[1] <- df_pro_jahr_hochskaliert$aktiver_energieverbrauch_pro_jahr[1] * 4
+df_pro_jahr_hochskaliert$aktiver_energieverbrauch_pro_jahr[5] <- df_pro_jahr_hochskaliert$aktiver_energieverbrauch_pro_jahr[5] * 4
+df_pro_jahr_hochskaliert$Anzahl_Ladevorgänge[1] <- df_pro_jahr_hochskaliert$Anzahl_Ladevorgänge[1] * 4
+df_pro_jahr_hochskaliert$Anzahl_Ladevorgänge[5] <- df_pro_jahr_hochskaliert$Anzahl_Ladevorgänge[5] * 4
+
+ggplot(df_pro_jahr_hochskaliert, aes(x = jahr, y = Anzahl_Ladevorgänge)) +
+  geom_line(color = "darkred", size = 1) +
+  geom_point() +
+  labs( x = "Jahr", y = "Geschätzte Anzahl der Ladevorgänge") +
+  theme_minimal()
+```
+
+```{r, echo=FALSE}
+ggplot(df_pro_jahr_hochskaliert, aes(x = jahr, y = aktiver_energieverbrauch_pro_jahr)) +
+  geom_line(color = "darkred", size = 1) +
+  geom_point() +
+  labs(  x = "Jahr", y = "Geschätzter Energieverbrauch [MWh]") +
+  theme_minimal()
+```
+
+Der durschnittliche Energieverbrauch eines Haushalts mit drei oder mehr Personen beträgt etwa 5 MWh pro Jahr, wie das [Statistische Bundesamt](https://www.destatis.de/EN/Themes/Society-Environment/Environment/Environmental-Economic-Accounting/private-households/Tables/electricity-consumption-private-households.html) angibt.
+Damit lässt sich ein Vergleich herstellen, der geschätzte Energieverbrauch der Ladestationen im Jahr 2025 entspricht in etwa dem Hundertfachen eines solchen Haushalts.
+
+### Daten
+
+- Quelle: [https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/datasets/2282@ima-kanton-zuerich/distributions/4563](https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/datasets/2282@ima-kanton-zuerich/distributions/4563)
+- Zeitraum: 01.10.2021 - 31.03.2025
+- Lizenz: CC-Zero: Creative Commons Public Domain Lizenz
+
+Die Daten liegen in CSV-Format vor. Die Datei enthält `r nrow(df)` Zeilen und die folgenden Spalten:
+
+```{r, echo=FALSE}
+names(df)
+```
+Hier sind die ersten 10 Zeilen der Daten:
+```{r, echo=FALSE}
+head(df,10)  %>%
+  kbl(booktabs = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+  scroll_box(width = "100%", height = "400px")
+```
+Die Einheiten sind nicht angegeben. Ich gehen davon aus, dass der aktive Energieverbrauch in [kWh] angegeben ist.
+
+### Code 
+
+Der Code is verfügbar unter []().

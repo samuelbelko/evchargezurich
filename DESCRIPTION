@@ -1,0 +1,19 @@
+Package: evchargezurich
+Type: Package
+Title: E-Ladestationen der kantonalen Verwaltung Zürich
+Version: 0.1.0
+Author: Samuel Belko
+Maintainer: samuelbelko@protonmail.com
+Description: Visualisierung der Ladevorgänge an E-Ladestationen der kantonalen Verwaltung Zürich
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dplyr,
+    ggplot2,
+    kableExtra,
+    leaflet,
+    readr,
+    rmarkdown,
+    tidygeocoder,
+    tidyr
