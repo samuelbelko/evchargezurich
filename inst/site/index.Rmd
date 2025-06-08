@@ -5,9 +5,11 @@ output:
     self_contained: true
 ---
 
+*von* ***Samuel Belko,*** *veröffentlicht am 8. Juni 2025.*
+
 In diesem Dokument visualisieren wir öffentlich zugängliche Daten, die Ladevorgänge an E-Ladestationen der kantonalen Verwaltung Zürich zeigen. Weitere Informationen zu den Daten finden sich im Abschnitt [Daten](#daten) unten.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 library(dplyr)
 library(ggplot2)
 library(tidygeocoder)
@@ -87,12 +89,7 @@ Damit lässt sich ein Vergleich herstellen, der geschätzte Energieverbrauch der
 - Zeitraum: 01.10.2021 - 31.03.2025
 - Lizenz: CC-Zero: Creative Commons Public Domain Lizenz
 
-Die Daten liegen in CSV-Format vor. Die Datei enthält `r nrow(df)` Zeilen und die folgenden Spalten:
-
-```{r, echo=FALSE}
-names(df)
-```
-Hier sind die ersten 10 Zeilen der Daten:
+Die Daten liegen in CSV-Format vor und die Datei enthält `r nrow(df)` Zeilen. Hier sind die ersten 10 Zeilen der Daten:
 ```{r, echo=FALSE}
 head(df,10)  %>%
   kbl(booktabs = TRUE) %>%
@@ -104,3 +101,5 @@ Die Einheiten sind nicht angegeben. Ich gehen davon aus, dass der aktive Energie
 ### Code 
 
 Der Code is verfügbar unter [https://github.com/samuelbelko/evchargezurich](https://github.com/samuelbelko/evchargezurich).
+
+<div style="height: 100px;"></div>
