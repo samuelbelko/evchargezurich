@@ -7,7 +7,7 @@ output:
 
 *von* ***Samuel Belko,*** *veröffentlicht am 8. Juni 2025.*
 
-In diesem Dokument visualisieren wir öffentlich zugängliche Daten, die Ladevorgänge an E-Ladestationen der kantonalen Verwaltung Zürich zeigen. Weitere Informationen zu den Daten finden sich im Abschnitt [Daten](#daten) unten.
+In diesem Dokument visualisiere ich öffentlich zugängliche Daten, die Ladevorgänge an E-Ladestationen der kantonalen Verwaltung Zürich zeigen. Weitere Informationen zu den Daten finden sich im Abschnitt [Daten](#daten) unten.
 
 ```{r, echo=FALSE, message=FALSE}
 library(dplyr)
@@ -102,4 +102,4 @@ Die Einheiten sind nicht angegeben. Ich gehen davon aus, dass der aktive Energie
 
 Der Code is verfügbar unter [https://github.com/samuelbelko/evchargezurich](https://github.com/samuelbelko/evchargezurich).
 
-<div style="height: 100px;"></div>
+<div style="height: 35px;"></div>
